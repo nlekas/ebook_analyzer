@@ -1,0 +1,167 @@
+[build-system]
+requires = ["setuptools>=61.0", "setuptools-scm>=8.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ebook-calibre-analyzer"
+# version is derived from git tags via setuptools-scm (see [tool.setuptools_scm])
+dynamic = ["version"]
+description = "Analyze ebook files in a datalake and compare them against a Calibre library"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+dependencies = [
+    "loguru>=0.7.0",
+]
+authors = [
+    {name = "Noah Lekas", email = "noah@lekas.me"}
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+[project.optional-dependencies]
+gpu = [
+    "cupy-cuda12x>=12.0.0",  # Pre-built wheel for CUDA 12.x (works with CUDA 13.0)
+    # For other CUDA versions, install manually:
+    # CUDA 11.x: pip install cupy-cuda11x
+    # CUDA 12.x: pip install cupy-cuda12x (default)
+]
+dev = [
+    "black>=23.0.0",
+    "ruff>=0.1.0",  # Fast linter (replaces flake8 + isort)
+    "mypy>=1.5.0",
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "tox>=4.0.0",  # Test automation and development tooling
+    "build>=0.10.0",  # Package building
+]
+
+[project.scripts]
+ebook-analyzer = "ebook_calibre_analyzer.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+ebook_calibre_analyzer = ["py.typed"]
+
+# setuptools-scm configuration for versioning from git tags
+[tool.setuptools_scm]
+write_to = "src/ebook_calibre_analyzer/_version.py"
+fallback_version = "0.1.0"
+
+# Black configuration
+[tool.black]
+line-length = 100
+target-version = ['py38', 'py39', 'py310', 'py311', 'py312']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+# Ruff configuration (replaces flake8 + isort)
+[tool.ruff]
+line-length = 100
+target-version = "py38"
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "N",   # pep8-naming
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "DTZ", # flake8-datetimez
+    "T20", # flake8-print
+    "SIM", # flake8-simplify
+]
+ignore = [
+    "E501",  # line too long (handled by black)
+    "E203",  # whitespace before ':' (conflicts with black)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]  # Allow unused imports in __init__.py
+
+[tool.ruff.lint.isort]
+known-first-party = ["ebook_calibre_analyzer"]
+force-single-line = false
+split-on-trailing-comma = true
+combine-as-imports = true
+
+# MyPy configuration
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
+check_untyped_defs = true
+disallow_untyped_decorators = false
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+show_error_codes = true
+
+[[tool.mypy.overrides]]
+module = [
+    "cupy.*",
+]
+ignore_missing_imports = true
+
+# Tox configuration is in tox.ini file
+
+# Pytest configuration
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --strict-markers"
+
+# Coverage configuration
+[tool.coverage.run]
+source = ["src"]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+    "*/__pycache__/*",
+    "*/_version.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@abstractmethod",
+]
+
