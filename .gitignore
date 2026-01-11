@@ -50,6 +50,7 @@ Thumbs.db
 # Project specific
 *.csv
 !tests/*.csv
+COVERAGE_GAPS.md
 
 # setuptools-scm generated version file
 src/ebook_calibre_analyzer/_version.py
