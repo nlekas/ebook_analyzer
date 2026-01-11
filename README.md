@@ -82,8 +82,3 @@ ruff check src/ tests/
 ruff check --fix src/ tests/
 mypy src/
 ```
-
-## License
-
-MIT
-
